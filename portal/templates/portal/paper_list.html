@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- Header & Hero -->
+<div class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-200 pb-6">
+  <div>
+    <span class="text-xs font-semibold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-md">Open Academic Repository</span>
+    <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mt-2">Active Research & Proposals</h1>
+    <p class="text-sm text-slate-500 mt-1">Review drafts, assess methodological rigor, and provide structured critiques.</p>
+  </div>
+  <div>
+    <a href="{% url 'submit_paper' %}" class="inline-flex items-center text-xs font-semibold px-4 py-2.5 rounded-lg bg-slate-900 text-white hover:bg-slate-800 transition shadow-sm">
+      New Submission &rarr;
+    </a>
+  </div>
+</div>
+
+<!-- Search Input -->
+<form method="get" class="mb-8">
+  <div class="relative flex items-center">
+    <input type="text" name="q" value="{{ query }}" placeholder="Search submissions by title or keywords..."
+           class="w-full bg-white border border-slate-300 rounded-xl pl-4 pr-24 py-3 text-sm text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition">
+    <button type="submit" class="absolute right-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium rounded-lg transition shadow-sm">
+      Filter
+    </button>
+  </div>
+  {% if query %}
+    <div class="mt-2 flex items-center justify-between text-xs text-slate-500">
+      <span>Filtering for: <strong>"{{ query }}"</strong></span>
+      <a href="/" class="text-indigo-600 hover:underline">Clear search</a>
+    </div>
+  {% endif %}
+</form>
+
+<!-- Grid of Papers -->
+<div class="grid gap-4 sm:gap-5">
+  {% for paper in papers %}
+    <article class="bg-white border border-slate-200 rounded-xl p-5 sm:p-6 hover:border-slate-300 hover:shadow-md transition group">
+      <div class="flex items-center justify-between gap-2 mb-2">
+        <span class="text-[11px] font-semibold text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-md uppercase tracking-wider">
+          {{ paper.category }}
+        </span>
+        <span class="text-xs text-slate-400">
+          {{ paper.created_at|date:"M j, Y" }}
+        </span>
+      </div>
+
+      <h2 class="text-lg font-bold text-slate-900 group-hover:text-indigo-600 transition tracking-tight">
+        <a href="{% url 'paper_detail' paper.id %}">{{ paper.title }}</a>
+      </h2>
+
+      <p class="text-slate-600 text-xs sm:text-sm mt-2 line-clamp-2 leading-relaxed">
+        {{ paper.abstract }}
+      </p>
+
+      <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
+        <div class="flex items-center space-x-2 text-slate-500">
+          <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-600 font-semibold flex items-center justify-center text-[10px]">
+            {{ paper.author.username|slice:":1"|upper }}
+          </span>
+          <span>{{ paper.author.username }}</span>
+        </div>
+
+        <div class="flex items-center space-x-3">
+          <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-indigo-50 text-indigo-700">
+            {{ paper.reviews.count }} Review{{ paper.reviews.count|pluralize }}
+          </span>
+          <a href="{% url 'paper_detail' paper.id %}" class="font-semibold text-indigo-600 hover:text-indigo-800 inline-flex items-center">
+            Details &rarr;
+          </a>
+        </div>
+      </div>
+    </article>
+  {% empty %}
+    <div class="text-center py-16 bg-white border border-dashed border-slate-300 rounded-2xl">
+      <p class="text-sm text-slate-500">No submissions matching this query.</p>
+      <a href="{% url 'submit_paper' %}" class="mt-2 inline-block text-xs font-semibold text-indigo-600 hover:underline">
+        Create a new submission
+      </a>
+    </div>
+  {% endfor %}
+</div>
+
+{% endblock %}
